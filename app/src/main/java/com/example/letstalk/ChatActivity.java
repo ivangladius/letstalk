@@ -68,12 +68,16 @@ public class ChatActivity extends AppCompatActivity {
         scrollView = findViewById(R.id.scrollView2);
 
 //        scrollView.scrollTo(0, scrollView.getBottom());
+
+
+        // TODO
         scrollView.post(new Runnable() {
             @Override
             public void run() {
                 scrollView.fullScroll(View.FOCUS_DOWN);
             }
         });
+
 //        scrollView.fullScroll(View.FOCUS_DOWN);
 
 //        linearLayout.removeAllViews();
@@ -100,7 +104,7 @@ public class ChatActivity extends AppCompatActivity {
 
 
         // strip [ .... ] of message
-        oldState = fullMessages.split("\n").length;
+        oldState = fullMessages.split("\t").length;
         Log.d("XXXOLD", "oldstate: " + oldState);
 
         showMessages(primaryKey, chatUserName);
@@ -115,11 +119,23 @@ public class ChatActivity extends AppCompatActivity {
                     "getIdByUsername",
                     chatUserName
             );
+            String msgToSend =
+                    primaryKey + " " + partnerKey + " " + "[" +
+                            String.valueOf(edtTypeMessage.getText()).replace("\n", " ").replace("\r", " ").concat("]");
+            Log.d("XEDT", "MSG TO SEND: " + primaryKey);
+
+//            client.request(
+//                    "-1",
+//                    "sendMessage",
+//                    primaryKey + " " + partnerKey + " " + String.valueOf(edtTypeMessage.getText()).replace("\n", " ").replace("\r", " ")
+//            );
             client.request(
                     "-1",
                     "sendMessage",
-                    primaryKey + " " + partnerKey + " " + edtTypeMessage.getText()
+                    msgToSend
             );
+//            Log.d("XEDT", "EDIT: " + String.valueOf(edtTypeMessage.getText()).replace("\n", " ").replace("\r", " "));
+//            text = text.replace("\n", "").replace("\r", "");
             finish();
             startActivity(getIntent());
 //            setContentView(R.layout.activity_chat);
@@ -140,7 +156,8 @@ public class ChatActivity extends AppCompatActivity {
 
 
         // strip [ .... ] of message
-        String[] messages = fullMessages.split("\n");
+        // TODO
+        String[] messages = fullMessages.split("\t");
         newState = messages.length;
         if (newState != oldState) {
             scrollView.post(new Runnable() {
@@ -158,11 +175,17 @@ public class ChatActivity extends AppCompatActivity {
 
         for (String m : messages) {
 
+            String currentUser = "";
+            String message = "";
             Matcher x = Pattern.compile("\\[(.*?)\\]").matcher(m);
-            x.find();
-            String currentUser = x.group(1);
-            x.find();
-            String message = x.group(1);
+            if (x.find())
+                currentUser = x.group(1);
+            if (x.find())
+                message = x.group(1);
+            else {
+                Log.d("XSKIP", "SKIPPED");
+                continue;
+            }
             Log.d("KCURRENT", "currentUser: " + currentUser + " message: " + message);
 
 //            String sendingUser = client.request(

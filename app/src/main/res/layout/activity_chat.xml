@@ -28,8 +28,6 @@
         android:layout_width="424dp"
         android:layout_height="491dp"
         android:layout_marginTop="12dp"
-        android:fadingEdge="none"
-        android:fillViewport="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.454"
