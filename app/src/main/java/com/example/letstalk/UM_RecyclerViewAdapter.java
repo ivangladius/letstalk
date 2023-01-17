@@ -70,6 +70,9 @@ public class UM_RecyclerViewAdapter
             btnUsername.setOnClickListener(view -> {
 
                 // if button is clicked of one of the friends jump to the chat
+                // and pass the username of the button you clicked on
+                // so if you click on your friend peter
+                // peter will be passed to ChatActivity
                 Intent intent = new Intent(context, ChatActivity.class);
                 intent.putExtra("chatUserName", btnUsername.getText()); //Optional parameters
                 intent.putExtra("key", primaryKey);

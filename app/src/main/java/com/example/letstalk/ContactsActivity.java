@@ -28,7 +28,7 @@ public class ContactsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contacts);
 
-        client = new Client("181.215.69.116", 9999);
+        client = Client.getInstance();
 
 
 
@@ -41,23 +41,28 @@ public class ContactsActivity extends AppCompatActivity {
 
             }
 
+            // this function will get called if the user input in
+            // the search bar for finding users has changed
+            // for example :
+            // m
+            // ma
+            // max
+            // so this function gets called 3 times
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                Log.d("DDDLISTENER", "TEXT HAS CHANGED: " + s);
 
+                // first clear all user
+//                userModels.clear();
                 userModels.clear();
 
+                // now get all users with the letter in variable "s"
+                String[] users = client.searchUsers(s.toString());
 
-                String users[] = client.request(
-                        "-1",
-                        "searchUsers",
-                        s.toString().toLowerCase(Locale.ROOT)).split(" ");
-
-                userModels.clear();
-                for (String u : users) {
-                    Log.d("XXXUSER", u);
+                // now add all found user to userModels list
+                for (String u : users)
                     userModels.add(new UserModel(u));
-                }
+
+                // now display all found users
                 displayModels(recyclerView);
             }
 
@@ -67,9 +72,11 @@ public class ContactsActivity extends AppCompatActivity {
             }
         };
 
+        // needed to override the functions above
         edtSearchBar.addTextChangedListener(tw);
     }
 
+    // display all found users in userModels, and displays them
     public void displayModels(RecyclerView recyclerView) {
         ContactsViewAdapter contactsViewAdapter
                 = new ContactsViewAdapter(this, userModels);

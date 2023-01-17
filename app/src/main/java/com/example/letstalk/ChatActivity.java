@@ -39,6 +39,15 @@ public class ChatActivity extends AppCompatActivity {
     Client client;
     static Handler handler = null;
     ScrollView scrollView;
+
+
+    // variables to check if a new message got added in the database
+    // compare oldState with newState later
+    // for e.g
+    // oldState = messages.length -> 13
+    // newState = messages.length -> 14
+    // now if you compare them and they arent equal that means a new message
+    // got added to the chat and reload the view
     static int oldState = -2;
     static int newState = -1;
 
@@ -77,21 +86,30 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
-        // if chat screen is opened get all messages of the chat
-        String fullMessages = client.request(
-                "-1",
-                "getMessages",
-                primaryKey + " " + chatUsername);
+
+        // those are all messages from the current chat
+        String[] splittedMessages = client.getAllChatMessages(
+                primaryKey, chatUsername
+        );
 
 
-        // strip [ .... ] of message
-        if (fullMessages != null)
-            oldState = fullMessages.split("\t").length;
+        if (splittedMessages != null)
+            oldState = splittedMessages.length;
+
+        // show messages
 
         showMessages(primaryKey, chatUsername);
+
+        // now reload every half a second and look if a new message arrived
+        // if yes reload the view with the new messages
+        // if no do nothing
+        // .. if (oldState != newState)
+        // ......................
+
         reload(primaryKey, chatUsername);
 
 
+        // if button is pressed send message to chat
         btnSendMessage.setOnClickListener(view ->
         {
 
@@ -112,23 +130,19 @@ public class ChatActivity extends AppCompatActivity {
     public void showMessages(String primaryKey, String chatUsername) {
 
 
+        // clear all messages before showing the updated version of the chat
         linearLayout.removeAllViews();
 
-        String fullMessages = client.request(
-                "-1",
-                "getMessages",
-                primaryKey + " " + chatUsername);
+        String[] splittedMessages = client.getAllChatMessages(
+                primaryKey, chatUsername
+        );
 
 
-        // strip [ .... ] of message
-        // TODO
-        String[] messages = null;
-        if (fullMessages != null) {
-            messages = fullMessages.split("\t");
-            newState = messages.length;
-        }
+        if (splittedMessages != null)
+            newState = splittedMessages.length;
 
-        // scroll to bottm if a new message is in the databank for the chat
+        // scroll to bottom if a new message is in the database for the chat
+        // with a new anonymous thread
         if (newState != oldState) {
             scrollView.post(new Runnable() {
                 @Override
@@ -138,67 +152,80 @@ public class ChatActivity extends AppCompatActivity {
             });
             oldState = newState;
         }
-        Log.d("LLLMESSAGE", fullMessages);
 
-//        for (String m : messages) {
+
+
+        int numberOfMessages = splittedMessages.length;
+
         // k = 1 to skip first "." message k = 2 to skip both "." messages
-
-        int n = messages.length;
         int k = 0;
-
-        // 7 13 .
-        // 13 7 .
-
-        if (n >= 2)
+        if (numberOfMessages >= 2)
             k = 2;
 
-        Log.d("XXXK", "k = " + k);
-        for (; k < n; k++) {
+
+        // loop trough "numberOfMessages" messages
+        for (; k < numberOfMessages; k++) {
 
             // [max 20:36] [nachricht]
-            String currentUser = "";
+            String sendingMsgUserData = "";
             String message = "";
-            Matcher x = Pattern.compile("\\[(.*?)\\]").matcher(messages[k]);
+
+            // message is built as following:
+            // "[username time] [this is some example message]"
+
+            // now we need to extract the two braces
+            // look for braces and extract their content
+            Matcher x = Pattern.compile("\\[(.*?)\\]").matcher(splittedMessages[k]);
+
+            // first brace [] -> [username time]
             if (x.find())
-                currentUser = x.group(1);
+                sendingMsgUserData = x.group(1);
+
+            // second brace [] -> [this is some example message
             if (x.find())
                 message = x.group(1);
-            else {
-                Log.d("XSKIP", "SKIPPED");
+
+            // if content could not be extracted just skip and go to the next message
+            else
                 continue;
-            }
-            Log.d("KCURRENT", "currentUser: " + currentUser + " message: " + message);
 
-//            String sendingUser = client.request(
-//                    "-1",
-//                    "getUsername",
-//                    currentUser
-//            );
-
+            // add Username and time to LinearLayout in ScrollView
             TextView userNameText = new TextView(getApplicationContext());
             userNameText.setTextSize(25);
             userNameText.setTypeface(null, Typeface.BOLD);
-            userNameText.setText(currentUser + " :");
+            userNameText.setText(sendingMsgUserData + " :");
             linearLayout.addView(userNameText);
+            // for e.g
+            // username1 20:36:
 
+            // now add chat text below the sendingMsgUserData text
             TextView chatText = new TextView(getApplicationContext());
             chatText.setTextSize(25);
             chatText.setText(message);
             linearLayout.addView(chatText);
 
+            // now looking like that
+
+            // username1 20:36
+            // this is my super cool message
+
+            // now just add a empty text just to create a while space between the messages
             TextView emptyFiller = new TextView(getApplicationContext());
             emptyFiller.setText(" ");
             linearLayout.addView(emptyFiller);
-//            String msg = currentUser + ": " + m.substring(1).substring(0, m.length() - 2);
-//            String msg = currentUser + ":\n" + message;
 
-            Log.d("XXXSHOW", message);
+            // now looking like that
 
-//            linearLayout.addView(chatText);
+            // username1 20:36
+            // this is my super cool message
+            // .... white line
+            // .. next message
+
 
         }
     }
 
+    // create new thread which reloads all messages
     public void reload(String primaryKey, String chatUsername) {
         handler = new Handler();
         handler.postDelayed(new Runnable() {
@@ -212,6 +239,8 @@ public class ChatActivity extends AppCompatActivity {
         }, 500);
     }
 
+    // if current activity is closed kill the reload thread
+    // should only run when in ChatsActivity
     @Override
     public void onDestroy() {
         // Do your stuff here

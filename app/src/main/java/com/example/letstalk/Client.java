@@ -4,6 +4,7 @@ import android.util.Log;
 
 import java.io.*;
 import java.net.*;
+import java.util.Locale;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -167,6 +168,19 @@ public class Client {
                 "sendMessage",
                 msgToSend
         );
+    }
+    public String[] getAllChatMessages(String primaryKey, String chatUsername) {
+        return request(
+                "-1",
+                "getMessages",
+                primaryKey + " " + chatUsername).split("\t");
+    }
+
+    public String[] searchUsers(String token) {
+        return request(
+                "-1",
+                "searchUsers",
+                token.toString().toLowerCase(Locale.ROOT)).split(" ");
     }
 
 }
