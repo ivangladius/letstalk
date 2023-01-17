@@ -80,9 +80,7 @@ public class Client {
             jsonMessage.put("payload", payload);
 
             out.println(jsonMessage.toString());
-            Log.d("XXXCLIENT", jsonMessage.toString());
             String replyString = in.readLine();
-            Log.d("XXXCLIENT", jsonMessage.toString());
 
 
             int i = replyString.indexOf("{");
@@ -119,7 +117,7 @@ public class Client {
     }
 
     public String login(String email, String password) {
-        System.out.println("email len: " + email.length() + " password len: " + password.length());
+        // if user enters garbage do nothing
         if (email.length() == 0 || password.length() == 0)
             return null;
         return request(
@@ -128,6 +126,48 @@ public class Client {
                 email + " " + password);
     }
 
+    public void addContact(String currentUserId, String contactUsername) {
+        String secondUserKey = request(
+                "-1",
+                "getIdByUsername",
+                contactUsername);
+
+        request(
+                "-1",
+                "sendMessage",
+                currentUserId + " " + secondUserKey + " .");
+
+        request(
+                "-1",
+                "sendMessage",
+                secondUserKey + " " + currentUserId + " .");
+
+    }
+
+    public String listFriends(String username) {
+        return request(
+                "-1",
+                "listFriends",
+                username);
+    }
+
+    public void sendMessage(String primaryKey, String chatUsername, String message) {
+
+        String partnerKey = request(
+                "-1",
+                "getIdByUsername",
+                chatUsername
+        );
+        String msgToSend =
+                primaryKey + " " + partnerKey + " " + "[" +
+                        message.replace("\n", " ").replace("\r", " ").concat("]");
+
+        request(
+                "-1",
+                "sendMessage",
+                msgToSend
+        );
+    }
 
 }
 

@@ -47,10 +47,13 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        client = new Client("181.215.69.116", 9999);
+        client = Client.getInstance();
 
+        // get username of chat partner and own primary key
+        // from UM_RecyclerViewAdapter.java, if clicked on a friend
+        // in UsersActivity.java
         String primaryKey = getIntent().getStringExtra("key");
-        String chatUserName = getIntent().getStringExtra("chatUserName");
+        String chatUsername = getIntent().getStringExtra("chatUserName");
 
         try {
             currentUser = FileUtility.readFromFile("username.txt", getApplicationContext());
@@ -62,7 +65,7 @@ public class ChatActivity extends AppCompatActivity {
         btnSendMessage = findViewById(R.id.btnSendMessage);
 
         chatName = findViewById(R.id.chatUser);
-        chatName.setText(chatUserName);
+        chatName.setText(chatUsername);
 
         linearLayout = findViewById(R.id.chatLayout);
         scrollView = findViewById(R.id.scrollView2);
@@ -78,51 +81,35 @@ public class ChatActivity extends AppCompatActivity {
         String fullMessages = client.request(
                 "-1",
                 "getMessages",
-                primaryKey + " " + chatUserName);
+                primaryKey + " " + chatUsername);
 
 
         // strip [ .... ] of message
-        oldState = fullMessages.split("\t").length;
-        Log.d("XXXOLD", "oldstate: " + oldState);
+        if (fullMessages != null)
+            oldState = fullMessages.split("\t").length;
 
-        showMessages(primaryKey, chatUserName);
-        reload(primaryKey, chatUserName);
+        showMessages(primaryKey, chatUsername);
+        reload(primaryKey, chatUsername);
 
 
         btnSendMessage.setOnClickListener(view ->
         {
 
-            String partnerKey = client.request(
-                    "-1",
-                    "getIdByUsername",
-                    chatUserName
+            client.sendMessage(
+                    primaryKey,
+                    chatUsername,
+                    String.valueOf(edtTypeMessage.getText())
             );
-            String msgToSend =
-                    primaryKey + " " + partnerKey + " " + "[" +
-                            String.valueOf(edtTypeMessage.getText()).replace("\n", " ").replace("\r", " ").concat("]");
-            Log.d("XEDT", "MSG TO SEND: " + primaryKey);
 
-//            client.request(
-//                    "-1",
-//                    "sendMessage",
-//                    primaryKey + " " + partnerKey + " " + String.valueOf(edtTypeMessage.getText()).replace("\n", " ").replace("\r", " ")
-//            );
-            client.request(
-                    "-1",
-                    "sendMessage",
-                    msgToSend
-            );
-//            Log.d("XEDT", "EDIT: " + String.valueOf(edtTypeMessage.getText()).replace("\n", " ").replace("\r", " "));
-//            text = text.replace("\n", "").replace("\r", "");
+            // after sending message reload activity to see the new message send
+
             finish();
             startActivity(getIntent());
-//            setContentView(R.layout.activity_chat);
-//            showMessages(primaryKey, chatUserName);
         });
     }
 
 
-    public void showMessages(String primaryKey, String chatUserName) {
+    public void showMessages(String primaryKey, String chatUsername) {
 
 
         linearLayout.removeAllViews();
@@ -130,13 +117,16 @@ public class ChatActivity extends AppCompatActivity {
         String fullMessages = client.request(
                 "-1",
                 "getMessages",
-                primaryKey + " " + chatUserName);
+                primaryKey + " " + chatUsername);
 
 
         // strip [ .... ] of message
         // TODO
-        String[] messages = fullMessages.split("\t");
-        newState = messages.length;
+        String[] messages = null;
+        if (fullMessages != null) {
+            messages = fullMessages.split("\t");
+            newState = messages.length;
+        }
 
         // scroll to bottm if a new message is in the databank for the chat
         if (newState != oldState) {
@@ -209,15 +199,15 @@ public class ChatActivity extends AppCompatActivity {
         }
     }
 
-    public void reload(String primaryKey, String chatUserName) {
+    public void reload(String primaryKey, String chatUsername) {
         handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 // Do something after 5s = 5000ms
 
-                showMessages(primaryKey, chatUserName);
-                reload(primaryKey, chatUserName);
+                showMessages(primaryKey, chatUsername);
+                reload(primaryKey, chatUsername);
             }
         }, 500);
     }

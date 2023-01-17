@@ -31,7 +31,6 @@ public class ContactsActivity extends AppCompatActivity {
         client = new Client("181.215.69.116", 9999);
 
 
-        Log.d("CLASSNAME", getClass().getName());
 
         edtSearchBar = findViewById(R.id.edtSearchBar);
         RecyclerView recyclerView = findViewById(R.id.mContactsView);

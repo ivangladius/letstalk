@@ -20,9 +20,12 @@ public class UM_RecyclerViewAdapter
         extends RecyclerView.Adapter<UM_RecyclerViewAdapter.MyViewHolder> {
 
     static Context context;
+
+
     ArrayList<UserModel> userModels;
     static String primaryKey;
 
+    // pass the userModels to the Constructor to later display them
     public UM_RecyclerViewAdapter(Context context, ArrayList<UserModel> userModels) {
         this.context = context;
         this.userModels = userModels;
@@ -34,6 +37,8 @@ public class UM_RecyclerViewAdapter
         }
     }
 
+
+    // this displays the RecyclerView
     @NonNull
     @Override
     public UM_RecyclerViewAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -44,6 +49,9 @@ public class UM_RecyclerViewAdapter
 
     @Override
     public void onBindViewHolder(@NonNull UM_RecyclerViewAdapter.MyViewHolder holder, int position) {
+        // we created a list of All friends now this
+        // command cycles trough all users in userModels
+        // and sets the text according to their username
         holder.btnUsername.setText(userModels.get(position).getUsername());
     }
 
@@ -60,9 +68,8 @@ public class UM_RecyclerViewAdapter
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
             btnUsername.setOnClickListener(view -> {
-                Log.d("RecyclerView", "onClick: " + getAdapterPosition());
-                Log.d("RecyclerView", "MESSAGEING :" + btnUsername.getText());
 
+                // if button is clicked of one of the friends jump to the chat
                 Intent intent = new Intent(context, ChatActivity.class);
                 intent.putExtra("chatUserName", btnUsername.getText()); //Optional parameters
                 intent.putExtra("key", primaryKey);

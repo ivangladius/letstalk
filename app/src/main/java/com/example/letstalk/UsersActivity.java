@@ -21,6 +21,8 @@ import java.util.List;
 
 public class UsersActivity extends AppCompatActivity {
 
+    // create userModel for RecyclerView to display all friends
+    // which contains all friends usernames
     ArrayList<UserModel> userModels = new ArrayList<>();
     Client client;
 
@@ -32,64 +34,59 @@ public class UsersActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_users);
 
-        String actNumber = getIntent().getStringExtra("activity");
-        if (actNumber != null) {
-            if (actNumber.equals("1")) {
-                startActivity(getIntent());
-                finish();
-                Log.d("RRRELOAD", "RELOADED BABY");
-            }
-        }
-
-//        overridePendingTransition(0, 0);
 
         btnSettings = findViewById(R.id.btnSettings);
         btnAddContacts = findViewById(R.id.btnAddContact);
 
         Context context = getApplicationContext();
-        client = new Client("181.215.69.116", 9999);
-        String _username_secure = null;
+        client = Client.getInstance();
+
+        // read username from file
+        String username = null;
         try {
-            _username_secure = FileUtility.readFromFile("username.txt", context);
+            username = FileUtility.readFromFile("username.txt", context);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        listFriends(_username_secure);
-        reload(_username_secure);
+        // list friends when UsersActivity is loaded
+        listFriends(username);
 
+
+        // reload every 5 seconds to list friends
+        reload(username);
+
+
+        // if clicked on button settings jump to SettingsActivity.java
         btnSettings.setOnClickListener(view -> {
             Intent myIntent = new Intent(UsersActivity.this, SettingsActivity.class);
-            myIntent.putExtra("key", " "); //Optional parameters
             UsersActivity.this.startActivity(myIntent);
         });
 
+        // if clicked on button Add Contact jump to ContactsActivity.java
         btnAddContacts.setOnClickListener(view -> {
             Intent myIntent = new Intent(UsersActivity.this, ContactsActivity.class);
-            myIntent.putExtra("key", " "); //Optional parameters
             UsersActivity.this.startActivity(myIntent);
         });
     }
 
-    public void listFriends(String _username_secure) {
+    public void listFriends(String username) {
 
-        String friends = client.request(
-                "-1",
-                "listFriends",
-                _username_secure);
-
-        Log.d("FRIENDS", "FRIENDS: ");
-        Log.d("FRIENDS", "FIRST: " + friends);
-
-
+        // getting String like "max hans peter gandalf"
+        String friends = client.listFriends(username);
 
         RecyclerView recyclerView = findViewById(R.id.mRecyclerView);
+
+        // clear current view and send them to setupUserModel()
+        // where the String friends get splitted
+        // and every "friend" gets added to the Recyclerview
 
         if (friends != null) {
             userModels.clear();
             setupUserModels(friends);
         }
 
+        // after view is created now set the new View
         UM_RecyclerViewAdapter adapter
                 = new UM_RecyclerViewAdapter(this, userModels);
 
@@ -103,8 +100,7 @@ public class UsersActivity extends AppCompatActivity {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                // Do something after 5s = 5000ms
-
+                // load every 5 seconds all friends
                 listFriends(_username_secure);
                 reload(_username_secure);
             }
@@ -122,10 +118,15 @@ public class UsersActivity extends AppCompatActivity {
 
         if (friends != null) {
             String[] sfriends = friends.split(" ");
-            if (!(sfriends[0].equals("") && sfriends.length == 1))
-            for (String sf : sfriends) {
-                Log.d("FRIENDS", "SECOND: " + sf);
-                userModels.add(new UserModel(sf));
+            // if user has 0 friends dont display any boxes
+            // this fixed the visual bug if you had no friends
+            // but still displayed one empty user box
+            if (!(sfriends[0].equals("") && sfriends.length == 1)) {
+                // now add every friend to the userModel
+                // so it will be later displayed by the RecyclerView
+                for (String sf : sfriends) {
+                    userModels.add(new UserModel(sf));
+                }
             }
         }
     }

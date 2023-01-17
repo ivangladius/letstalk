@@ -1,5 +1,7 @@
 package com.example.letstalk;
 
+
+// this is the UserModel to display the users in a RecyclerView
 public class UserModel {
     String username;
 

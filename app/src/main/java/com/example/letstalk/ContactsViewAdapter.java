@@ -54,7 +54,8 @@ public class ContactsViewAdapter
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
-            client = new Client("181.215.69.116", 9999);
+
+            client = Client.getInstance();
 
 
             //  $$$$  IMPORTANT $$$$:
@@ -105,20 +106,14 @@ public class ContactsViewAdapter
                 // where (btnUsername.getText().toString()); is the username
                 // we clicked on
 
-                String secondUserKey = client.request(
-                        "-1",
-                        "getIdByUsername",
-                        btnUsername.getText().toString());
 
-                client.request(
-                        "-1",
-                        "sendMessage",
-                        currentUserKey + " " + secondUserKey + " .");
+                // add contact on which button the user clicked
+                client.addContact(
+                        currentUserKey,
+                        String.valueOf(btnUsername.getText())
+                );
 
-                client.request(
-                        "-1",
-                        "sendMessage",
-                        secondUserKey + " " + currentUserKey + " .");
+
 
 
                 // after adding contact jump back to MainActivity
