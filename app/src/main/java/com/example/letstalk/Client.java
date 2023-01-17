@@ -1,5 +1,8 @@
 package com.example.letstalk;
 
+import static android.view.View.VISIBLE;
+
+import android.content.Context;
 import android.util.Log;
 
 import java.io.*;
@@ -28,6 +31,10 @@ public class Client {
     private ObjectOutputStream out;
     private ObjectInputStream in;
 
+    public static String loginFile = "login_status.txt";
+    private static String keyFile = "primary_key.txt";
+    private static String usernameFile = "username.txt";
+
     public Client(String address, Integer port) {
         try {
             this.address = InetAddress.getByName(address);
@@ -54,7 +61,8 @@ public class Client {
     private void closeSocket() {
 //        if (!clientSocket.isClosed()) {
         try {
-            clientSocket.close();
+            if (clientSocket != null)
+                clientSocket.close();
         } catch (IOException ignore) {
         }
         //       }
@@ -120,68 +128,20 @@ public class Client {
         }
         return null;
     }
-/*
-    public String requestData(String operation) {
 
-        executor = Executors.newSingleThreadExecutor();
-        Future<JSONObject> jsonFuture;
-
-        jsonFuture = executor.submit(() -> {
-
-            connect();
-
-            PrintWriter out;
-            BufferedReader in;
-
-            out = new PrintWriter(clientSocket.getOutputStream(), true);
-            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
-            JSONObject jsonMessage = new JSONObject();
-            jsonMessage.put("key", "403");
-            jsonMessage.put("operation", operation);
-            jsonMessage.put("payload", " ");
-
-            out.println(jsonMessage.toString());
-            String replyString = in.readLine();
-
-            int i = replyString.indexOf("{");
-            replyString = replyString.substring(i);
-            JSONObject json = new JSONObject(replyString.trim());
-            System.out.println(json.toString(4));
-
-            return json;
-        });
-
-        JSONObject data = null;
-        try {
-            data = jsonFuture.get(5L, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (TimeoutException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+    public String createAccount(String username, String email, String password,
+                                Context context) {
+        String userId = request(
+                "-1",
+                "createUser",
+                username + " " + email + " " + password);
+        if (userId != null && !userId.equals("1") && !userId.equals("2") && !userId.equals("3")) {
+            FileUtility.writeUserIdToFile(userId, context);
+            FileUtility.writeLoginStatusToFile("true", context);
+            FileUtility.writeUsernameToFile(username, context);
         }
 
-        executor.shutdown();
-
-        closeSocket();
-
-        if (data != null) {
-            try {
-                return data.get("payload").toString();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            } catch (NullPointerException e) {
-                e.printStackTrace();
-            }
-        }
-        return null;
+        return userId;
     }
-
- */
 }
 

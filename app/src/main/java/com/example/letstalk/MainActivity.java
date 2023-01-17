@@ -2,37 +2,27 @@ package com.example.letstalk;
 
 import static android.view.View.VISIBLE;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.lang.reflect.Array;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
+import androidx.appcompat.app.AppCompatActivity;
 
 
 public class MainActivity extends AppCompatActivity {
 
     private EditText edtUsername, edtPassword, edtEmail;
     private Button btnSubmit;
+
     private TextView txtLoginInfo;
+    private TextView tvEmailError;
+    private TextView tvUsernameError;
+
 
     private boolean isSinginUp = true;
     private Client client;
@@ -40,7 +30,6 @@ public class MainActivity extends AppCompatActivity {
     private String loginFile = "login_status.txt";
     private String keyFile = "primary_key.txt";
     private String usernameFile = "username.txt";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,69 +43,74 @@ public class MainActivity extends AppCompatActivity {
         btnSubmit = findViewById(R.id.btnSubmit);
         txtLoginInfo = findViewById(R.id.txtLoginInfo);
 
-        TextView tvEmailError = findViewById(R.id.tvEmailError);
-        TextView tvUsernameError= findViewById(R.id.tvUsernameError);
+        tvEmailError = findViewById(R.id.tvEmailExist);
+        tvUsernameError = findViewById(R.id.tvUsernameExist);
 
         client = new Client("181.215.69.116", 9999);
 
         Context context = getApplicationContext();
 
-        Log.d("CLASSNAME", getClass().getName());
         // IF ALREADY LOGGED IN
-        try {
-            File _loginFile = new File(context.getFilesDir(), loginFile);
-            File _usernameFile = new File(context.getFilesDir(), usernameFile);
-
-            if (_loginFile.exists() && _usernameFile.exists()) {
-                String loginStatus = FileUtility.readFromFile(loginFile, context);
-                String _username = FileUtility.readFromFile(usernameFile, context);
-                if (loginStatus.equals("true") && !_username.equals("none")) {
-                    Intent myIntent = new Intent(MainActivity.this, UsersActivity.class);
-                    myIntent.putExtra("username", _username); //Optional parameters
-                    MainActivity.this.startActivity(myIntent);
-                }
-            } else {
-                FileUtility.writeToFile(loginFile, "false", context);
-                FileUtility.writeToFile(usernameFile, "none", context);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (FileUtility.isAlreadyLoggedIn(context)) {
+            Intent myIntent = new Intent(MainActivity.this, UsersActivity.class);
+            myIntent.putExtra("username",
+                    String.valueOf(edtUsername.getText())); //Optional parameters
+            MainActivity.this.startActivity(myIntent);
         }
 
+
         btnSubmit.setOnClickListener(view -> {
-            String userId = client.request("-1", "createUser",
-                    edtUsername.getText() + " "
-                            + edtEmail.getText() + " "
-                            + edtPassword.getText());
 
-            if (userId.equals("1"))
-                tvUsernameError.setVisibility(VISIBLE);
-            else if (userId.equals("2"))
-                tvEmailError.setVisibility(VISIBLE);
-            else if (userId.equals("3")) {
-                tvUsernameError.setVisibility(VISIBLE);
-                tvEmailError.setVisibility(VISIBLE);
-            }
+            String userId = client.createAccount(
+                    String.valueOf(edtUsername.getText()),
+                    String.valueOf(edtEmail.getText()),
+                    String.valueOf(edtPassword.getText()),
+                    context);
 
-            else if (userId != null) {
-                try {
-                    FileUtility.writeToFile(keyFile, userId, context);
-                    FileUtility.writeToFile(loginFile, "true", context);
-                    FileUtility.writeToFile(usernameFile, String.valueOf(edtUsername.getText()), context);
+            // if 1, username already exists
 
-                    String _username = String.valueOf(edtUsername.getText());
+            String _username = FileUtility.getUsernameFromFile(context);
+            String _loginstatus = FileUtility.getLoginStatusFromFile(context);
+            String _userkey = FileUtility.getUserIdFromFile(context);
+            Log.d("XXXFILE", _username);
+            Log.d("XXXFILE", _loginstatus);
+            Log.d("XXXFILE", _userkey);
 
+
+            // if creating account worked jump to next activity (UsersActivity), status = logged in "true"
+            if (userId != null) {
+                Log.d("XXXCASE", userId);
+                if (!userId.equals("1") && !userId.equals("2") && !userId.equals("3")) {
+                    if (userId.equals("1")) {
+                        Log.d("XXXEXIST", "USERNAME EXIST");
+                        tvUsernameError.setVisibility(VISIBLE);
+                    }
+                        // if 2, email already exists
+                    else if (userId.equals("2")) {
+                        Log.d("XXXEXIST", "EMAIL EXIST");
+                        tvEmailError.setVisibility(VISIBLE);
+                    }
+                        // if 3, both email and username already exist
+                    else if (userId.equals("3")) {
+                        Log.d("XXXEXIST", "USERNAME and EMAIL EXIST");
+                        tvUsernameError.setVisibility(VISIBLE);
+                        tvEmailError.setVisibility(VISIBLE);
+                    }
+                } else {
+                    Log.d("XXXCASE", "4 CHECK");
                     Intent myIntent = new Intent(MainActivity.this, UsersActivity.class);
-                    myIntent.putExtra("username", _username); //Optional parameters
+                    myIntent.putExtra("username",
+                            String.valueOf(edtUsername.getText())); //Optional parameters
                     MainActivity.this.startActivity(myIntent);
-
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
+
             }
+            else
+                Log.d("XXXCASE", "4 CHECK ELSE");
 
         });
 
+        // if clicked jump to login activity and vice versa
         txtLoginInfo.setOnClickListener(view -> {
             Intent myIntent = new Intent(MainActivity.this, LoginActivity.class);
             MainActivity.this.startActivity(myIntent);

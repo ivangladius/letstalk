@@ -1,5 +1,7 @@
 package com.example.letstalk;
 
+import static com.example.letstalk.ChatActivity.handler;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -7,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
@@ -52,7 +55,23 @@ public class UsersActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        Log.d("CLASSNAME", getClass().getName());
+        listFriends(_username_secure);
+        reload(_username_secure);
+
+        btnSettings.setOnClickListener(view -> {
+            Intent myIntent = new Intent(UsersActivity.this, SettingsActivity.class);
+            myIntent.putExtra("key", " "); //Optional parameters
+            UsersActivity.this.startActivity(myIntent);
+        });
+
+        btnAddContacts.setOnClickListener(view -> {
+            Intent myIntent = new Intent(UsersActivity.this, ContactsActivity.class);
+            myIntent.putExtra("key", " "); //Optional parameters
+            UsersActivity.this.startActivity(myIntent);
+        });
+    }
+
+    public void listFriends(String _username_secure) {
 
         String friends = client.request(
                 "-1",
@@ -77,17 +96,19 @@ public class UsersActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        btnSettings.setOnClickListener(view -> {
-            Intent myIntent = new Intent(UsersActivity.this, SettingsActivity.class);
-            myIntent.putExtra("key", " "); //Optional parameters
-            UsersActivity.this.startActivity(myIntent);
-        });
+    }
 
-        btnAddContacts.setOnClickListener(view -> {
-            Intent myIntent = new Intent(UsersActivity.this, ContactsActivity.class);
-            myIntent.putExtra("key", " "); //Optional parameters
-            UsersActivity.this.startActivity(myIntent);
-        });
+    public void reload(String _username_secure) {
+        handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // Do something after 5s = 5000ms
+
+                listFriends(_username_secure);
+                reload(_username_secure);
+            }
+        }, 5000);
     }
 
     // if pressed back just close app

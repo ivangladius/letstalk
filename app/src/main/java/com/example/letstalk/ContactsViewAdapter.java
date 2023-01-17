@@ -56,44 +56,74 @@ public class ContactsViewAdapter
             super(itemView);
             client = new Client("181.215.69.116", 9999);
 
+
+            //  $$$$  IMPORTANT $$$$:
+            // Sending messages works like that:
+            // you need to provide both primary keys for the current User and the partner you want to add
+            // for example 7 13 "msg"
+            // where 7 is the primary key of the one who is sending the message
+            // 13 is the primary key of the one who is receiving the message
+            // and "msg" is the message to be sent
+            // so to add a user we use a system that we just send each other a dot
+            // like this .... client.request("-1", "sendMessage", "7 13 .");
+            // and            client.request("-1", "sendMessage", "13 7 .");
+            // Now we know this two are friends, the dots are later invisible
+
+
+            // below everything happens if the button is pressed in "Add contact" after clicking on
+            // a user you searched with the search bar in ContactsAcitivy.java ( edtSearchBar )
+
             btnUsername.setOnClickListener(view -> {
-                Log.d("ContactsView", "onClick: " + getAdapterPosition());
-                Log.d("ContactsView", "MESSAGEING :" + btnUsername.getText());
-                String currentUser = null;
-                String username = null;
+                String currentUserKey = null;
+                // Get the user primary Key from files from the android filesystem
                 try {
-                    currentUser = FileUtility.readFromFile("primary_key.txt", context);
-                    username = FileUtility.readFromFile("username.txt", context);
+                    currentUserKey = FileUtility.readFromFile("primary_key.txt", context);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                String secondUser = client.request(
+
+                // we have the username of the partner (btnUsername with .getText())
+                // where btnUsername has the username of the User stored, you searched
+                // with edtSearchbar (defined File: ContactsActivity, Line: 22)
+                // so if you click add Contacts and search for users, every user will be a button
+                // for example, search: m   (edtSearchBar)
+                // | max     |   btnUsername.setText("max");
+                // | mubi    |   btnUsername.setText("mubi");
+                // | mohamed |   btnUsername.setText("mohamed");
+
+                // (see Line: 41) and imagine this in a loop for as many users there a found
+                // with the search input you provide
+
+
+                // Now if you click on Button this function will be called
+                // and to retrieve the username of the button we call
+                // btnUsername.getText();
+
+
+                // we need the primary key of the User we want to add
+                // so we call getIdByUsername(), with his username
+                // where (btnUsername.getText().toString()); is the username
+                // we clicked on
+
+                String secondUserKey = client.request(
                         "-1",
                         "getIdByUsername",
                         btnUsername.getText().toString());
 
-                Log.d("XXXCURRENT", "PRIM: " + currentUser + " SEC: " + secondUser);
+                client.request(
+                        "-1",
+                        "sendMessage",
+                        currentUserKey + " " + secondUserKey + " .");
 
                 client.request(
                         "-1",
                         "sendMessage",
-                        currentUser + " " + secondUser + " .");
-
-                Log.d("SSSENDING", "Message: " + currentUser + " " + secondUser + " .");
+                        secondUserKey + " " + currentUserKey + " .");
 
 
+                // after adding contact jump back to MainActivity
                 context.startActivity(new Intent(context, MainActivity.class));
-
-
-//                Intent intent = new Intent(context, UsersActivity.class);
-//                intent.putExtra("username", username); //Optional parameters
-//                intent.putExtra("activity", "1"); //Optional parameters
-//                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-////                intent.setFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
-//                context.startActivity(intent);
             });
         }
-
     }
-
 }

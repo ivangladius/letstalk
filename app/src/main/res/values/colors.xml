@@ -10,4 +10,5 @@
 
     <color name="blueBlack">#111f28</color>
     <color name="tanAccent">#e3cdb3</color>
+    <color name="red">#FF0000</color>
 </resources>

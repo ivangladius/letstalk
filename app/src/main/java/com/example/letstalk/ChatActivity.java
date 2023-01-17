@@ -67,10 +67,6 @@ public class ChatActivity extends AppCompatActivity {
         linearLayout = findViewById(R.id.chatLayout);
         scrollView = findViewById(R.id.scrollView2);
 
-//        scrollView.scrollTo(0, scrollView.getBottom());
-
-
-        // TODO
         scrollView.post(new Runnable() {
             @Override
             public void run() {
@@ -78,25 +74,7 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
-//        scrollView.fullScroll(View.FOCUS_DOWN);
-
-//        linearLayout.removeAllViews();
-//
-//        String fullMessages = client.request(
-//                "-1",
-//                "getMessages",
-//                primaryKey + " " + chatUserName);
-
-
-        // TODO:
-        /*
-        Matcher m = Pattern.compile("\\[(.*?)\\]").matcher(x);
-        while (m.find()) {
-            System.out.println(m.group(1));
-        }
-         */
-
-
+        // if chat screen is opened get all messages of the chat
         String fullMessages = client.request(
                 "-1",
                 "getMessages",
@@ -159,6 +137,8 @@ public class ChatActivity extends AppCompatActivity {
         // TODO
         String[] messages = fullMessages.split("\t");
         newState = messages.length;
+
+        // scroll to bottm if a new message is in the databank for the chat
         if (newState != oldState) {
             scrollView.post(new Runnable() {
                 @Override
@@ -168,16 +148,27 @@ public class ChatActivity extends AppCompatActivity {
             });
             oldState = newState;
         }
-////            scrollView.scrollTo(0, scrollView.getBottom());
-//            scrollView.fullScroll(View.FOCUS_DOWN);
-//        }
         Log.d("LLLMESSAGE", fullMessages);
 
-        for (String m : messages) {
+//        for (String m : messages) {
+        // k = 1 to skip first "." message k = 2 to skip both "." messages
 
+        int n = messages.length;
+        int k = 0;
+
+        // 7 13 .
+        // 13 7 .
+
+        if (n >= 2)
+            k = 2;
+
+        Log.d("XXXK", "k = " + k);
+        for (; k < n; k++) {
+
+            // [max 20:36] [nachricht]
             String currentUser = "";
             String message = "";
-            Matcher x = Pattern.compile("\\[(.*?)\\]").matcher(m);
+            Matcher x = Pattern.compile("\\[(.*?)\\]").matcher(messages[k]);
             if (x.find())
                 currentUser = x.group(1);
             if (x.find())

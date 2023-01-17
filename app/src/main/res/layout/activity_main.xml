@@ -79,28 +79,33 @@
         tools:ignore="HardcodedText,TextContrastCheck" />
 
     <TextView
-        android:id="@+id/tvEmailError"
-        android:layout_width="192dp"
-        android:layout_height="23dp"
-        android:text="EMAIL ALREADY EXISTS"
-        android:textColor="@color/blueBlack"
+        android:id="@+id/tvUsernameExist"
+        android:layout_width="266dp"
+        android:layout_height="28dp"
+        android:layout_marginTop="52dp"
+        android:background="@color/blueBlack"
+        android:text="Username already exists!"
+        android:textColor="@color/red"
+        android:textSize="20dp"
         android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/tvEmailExist"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.538"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtLoginInfo" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/tvUsernameError"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="USERNAME ALREADY EXISTS"
+        android:id="@+id/tvEmailExist"
+        android:layout_width="264dp"
+        android:layout_height="27dp"
+        android:layout_marginBottom="116dp"
+        android:text="Email already exists!"
+        android:textColor="@color/red"
+        android:textSize="20dp"
         android:visibility="invisible"
-        android:textColor="@color/blueBlack"
-        app:layout_constraintBottom_toTopOf="@+id/textView"
+        app:layout_constraintBottom_toTopOf="@+id/edtUsername"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtLoginInfo"
-        app:layout_constraintVertical_bias="0.796" />
+        app:layout_constraintHorizontal_bias="0.518"
+        app:layout_constraintStart_toStartOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

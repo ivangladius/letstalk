@@ -31,6 +31,7 @@ public class SettingsActivity extends AppCompatActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
             Intent myIntent = new Intent(SettingsActivity.this, MainActivity.class);
             myIntent.putExtra("key", " "); //Optional parameters
             SettingsActivity.this.startActivity(myIntent);
