@@ -8,7 +8,7 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-<!--    Sing up (benutzer name)-->
+    <!--    Sing up (benutzer name)-->
 
     <!--    Sing up (Email name)-->
 
@@ -78,34 +78,18 @@
         app:layout_constraintTop_toBottomOf="@+id/btnSubmit"
         tools:ignore="HardcodedText,TextContrastCheck" />
 
-    <TextView
-        android:id="@+id/tvUsernameExist"
-        android:layout_width="266dp"
-        android:layout_height="28dp"
-        android:layout_marginTop="52dp"
-        android:background="@color/blueBlack"
-        android:text="Username already exists!"
-        android:textColor="@color/red"
-        android:textSize="20dp"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@+id/tvEmailExist"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.538"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/tvEmailExist"
-        android:layout_width="264dp"
-        android:layout_height="27dp"
-        android:layout_marginBottom="116dp"
-        android:text="Email already exists!"
+        android:id="@+id/tvExistError"
+        android:layout_width="364dp"
+        android:layout_height="62dp"
+        android:backgroundTint="@color/blueBlack"
+        android:gravity="center"
         android:textColor="@color/red"
-        android:textSize="20dp"
-        android:visibility="invisible"
+        android:textSize="25sp"
         app:layout_constraintBottom_toTopOf="@+id/edtUsername"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.518"
-        app:layout_constraintStart_toStartOf="parent" />
-
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.135" />
 </androidx.constraintlayout.widget.ConstraintLayout>

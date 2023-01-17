@@ -1,8 +1,5 @@
 package com.example.letstalk;
 
-import static android.view.View.VISIBLE;
-
-import android.content.Context;
 import android.util.Log;
 
 import java.io.*;
@@ -20,20 +17,18 @@ import java.util.concurrent.Executors;
 
 public class Client {
 
+    private static final Client instance = new Client("181.215.69.116", 9999);
+    // singleton pattern
+    public static Client getInstance() {
+        return instance;
+    }
+
     private Socket clientSocket;
     private InetAddress address;
-    private Integer port;
+    private final Integer port;
 
-    private ExecutorService executor;
-
-    // private PrintWriter output;
-    // private BufferedReader input;
     private ObjectOutputStream out;
     private ObjectInputStream in;
-
-    public static String loginFile = "login_status.txt";
-    private static String keyFile = "primary_key.txt";
-    private static String usernameFile = "username.txt";
 
     public Client(String address, Integer port) {
         try {
@@ -48,7 +43,6 @@ public class Client {
     private void connect() {
         try {
             clientSocket = new Socket(this.address, this.port);
-            // output = new PrintWriter(clientSocket.getOutputStream(), true);
             out = new ObjectOutputStream(clientSocket.getOutputStream());
 
         } catch (IOException e) {
@@ -59,18 +53,15 @@ public class Client {
     }
 
     private void closeSocket() {
-//        if (!clientSocket.isClosed()) {
         try {
-            if (clientSocket != null)
-                clientSocket.close();
+            clientSocket.close();
         } catch (IOException ignore) {
         }
-        //       }
     }
 
     public String request(String key, String operation, String payload) {
 
-        executor = Executors.newSingleThreadExecutor();
+        ExecutorService executor = Executors.newSingleThreadExecutor();
         Future<JSONObject> jsonFuture;
 
         jsonFuture = executor.submit(() -> {
@@ -105,11 +96,7 @@ public class Client {
         JSONObject data = null;
         try {
             data = jsonFuture.get(5L, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (TimeoutException e) {
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
             e.printStackTrace();
         }
 
@@ -120,28 +107,27 @@ public class Client {
         if (data != null) {
             try {
                 return data.get("payload").toString();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            } catch (NullPointerException e) {
+            } catch (JSONException | NullPointerException e) {
                 e.printStackTrace();
             }
         }
         return null;
     }
-
-    public String createAccount(String username, String email, String password,
-                                Context context) {
-        String userId = request(
-                "-1",
-                "createUser",
+    public String createUser(String username, String email, String password) {
+        return request("-1", "createUser",
                 username + " " + email + " " + password);
-        if (userId != null && !userId.equals("1") && !userId.equals("2") && !userId.equals("3")) {
-            FileUtility.writeUserIdToFile(userId, context);
-            FileUtility.writeLoginStatusToFile("true", context);
-            FileUtility.writeUsernameToFile(username, context);
-        }
-
-        return userId;
     }
+
+    public String login(String email, String password) {
+        System.out.println("email len: " + email.length() + " password len: " + password.length());
+        if (email.length() == 0 || password.length() == 0)
+            return null;
+        return request(
+                "-1",
+                "login",
+                email + " " + password);
+    }
+
+
 }
 

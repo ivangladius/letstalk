@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -16,16 +17,14 @@ import java.io.IOException;
 public class LoginActivity extends AppCompatActivity {
 
 
-    private EditText edtUsername, edtPassword, edtEmail;
-    private Button btnSubmit;
-    private TextView txtLoginInfo;
+    private EditText edtEmail, edtPassword;
 
-    private boolean isSinginUp = true;
     private Client client;
 
-    private String loginFile = "login_status.txt";
-    private String keyFile = "primary_key.txt";
-    private String usernameFile = "username.txt";
+    // final because we never change the String values
+    private final String loginFile = "login_status.txt";
+    private final String keyFile = "primary_key.txt";
+    private final String usernameFile = "username.txt";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,63 +35,75 @@ public class LoginActivity extends AppCompatActivity {
         edtEmail = findViewById(R.id.edtEmail);
         edtPassword = findViewById(R.id.edtPassword);
 
-        btnSubmit = findViewById(R.id.btnSubmit);
-        txtLoginInfo = findViewById(R.id.txtLoginInfo);
+        Button btnSubmit = findViewById(R.id.btnSubmit);
+        TextView txtLoginInfo = findViewById(R.id.txtLoginInfo);
 
-        client = new Client("181.215.69.116", 9999);
+        TextView tvErrorExist = findViewById(R.id.tvExistError);
 
         Context context = getApplicationContext();
-        // IF ALREADY LOGGED IN
-        try {
-            File _loginFile = new File(context.getFilesDir(), loginFile);
-            File _usernameFile = new File(context.getFilesDir(), usernameFile);
 
-            if (_loginFile.exists()  && _usernameFile.exists()) {
-                String loginStatus = FileUtility.readFromFile(loginFile, context);
-                if (loginStatus.equals("true")) {
-                    String userId = FileUtility.readFromFile(keyFile, context);
-                    String _username = FileUtility.readFromFile(keyFile, context);
+        // get Client instance object
+        Client client = Client.getInstance();
 
-                    Intent myIntent = new Intent(LoginActivity.this, UsersActivity.class);
-                    myIntent.putExtra("key", userId); //Optional parameters
-                    myIntent.putExtra("username", _username); //Optional parameters
-                    LoginActivity.this.startActivity(myIntent);
-                }
-            } else {
-                FileUtility.writeToFile(loginFile, "false", context);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        // if user is already logged in jump to UsersActivity
+        String tempUsername = FileUtility.isUserLoggedIn(context);
+        if (tempUsername != null) {
+            Intent myIntent = new Intent(LoginActivity.this, UsersActivity.class);
+            myIntent.putExtra("username", tempUsername);
+            LoginActivity.this.startActivity(myIntent);
         }
 
         btnSubmit.setOnClickListener(view -> {
-            String payload = client.request(
-                    "-1",
-                    "login",
-                    edtEmail.getText() + " " + edtPassword.getText());
 
-            String[] cred = payload.split(" ");
-            String userId = cred[0];
-            String username = cred[1];
+            // get String[] {"userId", "username"} from function login
+            String payload = client.login(
+                    String.valueOf(edtEmail.getText()),
+                    String.valueOf(edtPassword.getText())
+            );
 
+            // now split payload where
+            // credentials[0] is the userId
+            // credentials[1] is the username
+
+            String userId = null;
+            String username = null;
             if (payload != null) {
+                String[] credentials = payload.split(" ");
+                userId = credentials[0]; // get UserId from returned String[]
+                username = credentials[1]; // get username from returned String[]
+            }
+            // to save later in files, to check if login status is true in
+            // MainActivity
+
+            if (userId != null && username != null) {
                 try {
-                    Log.d("XPAYLOAD", "userID = " + userId);
-                    Log.d("XPAYLOAD", "username = " + username);
+                    // write credentials to file, meaning he is logged in
                     FileUtility.writeToFile(keyFile, userId, context);
-                    FileUtility.writeToFile(loginFile, "true", context);
                     FileUtility.writeToFile(usernameFile, username, context);
+                    FileUtility.writeToFile(loginFile, "true", context);
+
+                    Intent myIntent = new Intent(LoginActivity.this, UsersActivity.class);
+                    myIntent.putExtra("key", userId);
+                    myIntent.putExtra("username", username);
+                    LoginActivity.this.startActivity(myIntent);
+
                 } catch (IOException e) {
-                    Log.d("XPAYLOAD", "PAYLOAD IS NULL");
                     e.printStackTrace();
                 }
+            } else { // if userId and username is null, account does not exist
+                tvErrorExist.setText("Account does not Exist");
+                tvErrorExist.setVisibility(View.VISIBLE);
             }
-            Intent myIntent = new Intent(LoginActivity.this, UsersActivity.class);
-            myIntent.putExtra("key", userId); //Optional parameters
-            myIntent.putExtra("username", username); //Optional parameters
-            LoginActivity.this.startActivity(myIntent);
+
+
+            // if successfully logged in jump to UsersActivity
+
+            // send userId and username to UsersActivity and jump to that
+
 
         });
+
+        // "create account" ? if clicked jump to MainActivity page to create account
         txtLoginInfo.setOnClickListener(view -> {
             Intent myIntent = new Intent(LoginActivity.this, MainActivity.class);
             LoginActivity.this.startActivity(myIntent);

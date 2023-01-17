@@ -122,6 +122,7 @@ public class UsersActivity extends AppCompatActivity {
 
         if (friends != null) {
             String[] sfriends = friends.split(" ");
+            if (!(sfriends[0].equals("") && sfriends.length == 1))
             for (String sf : sfriends) {
                 Log.d("FRIENDS", "SECOND: " + sf);
                 userModels.add(new UserModel(sf));
