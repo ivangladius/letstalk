@@ -31,7 +31,6 @@ public class ContactsActivity extends AppCompatActivity {
         client = Client.getInstance();
 
 
-
         edtSearchBar = findViewById(R.id.edtSearchBar);
         RecyclerView recyclerView = findViewById(R.id.mContactsView);
 
@@ -55,15 +54,19 @@ public class ContactsActivity extends AppCompatActivity {
 //                userModels.clear();
                 userModels.clear();
 
-                // now get all users with the letter in variable "s"
+                // now get all users with the letters in variable "s"
                 String[] users = client.searchUsers(s.toString());
 
-                // now add all found user to userModels list
-                for (String u : users)
-                    userModels.add(new UserModel(u));
+                // if no users found dont add to userModels
+                // thus nothing will be displayed
+                if (!(users.length == 1 && users[0].equals(""))) {
 
-                // now display all found users
-                displayModels(recyclerView);
+                    // now add all found user to userModels list
+                    for (String u : users)
+                        userModels.add(new UserModel(u));
+                }
+                    // now display all found users
+                    displayModels(recyclerView);
             }
 
             @Override

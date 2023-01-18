@@ -26,6 +26,8 @@ public class UsersActivity extends AppCompatActivity {
     ArrayList<UserModel> userModels = new ArrayList<>();
     Client client;
 
+    String username;
+
     Button btnSettings;
     Button btnAddContacts;
 
@@ -42,7 +44,7 @@ public class UsersActivity extends AppCompatActivity {
         client = Client.getInstance();
 
         // read username from file
-        String username = null;
+        username = null;
         try {
             username = FileUtility.readFromFile("username.txt", context);
         } catch (IOException e) {

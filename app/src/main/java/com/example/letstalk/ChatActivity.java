@@ -3,6 +3,7 @@ package com.example.letstalk;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Lifecycle;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -12,6 +13,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -96,8 +98,6 @@ public class ChatActivity extends AppCompatActivity {
         if (splittedMessages != null)
             oldState = splittedMessages.length;
 
-        // show messages
-
         showMessages(primaryKey, chatUsername);
 
         // now reload every half a second and look if a new message arrived
@@ -119,10 +119,14 @@ public class ChatActivity extends AppCompatActivity {
                     String.valueOf(edtTypeMessage.getText())
             );
 
-            // after sending message reload activity to see the new message send
+            // set edtTypeMessage empty and hide keyboard for better experience
+            edtTypeMessage.setText("");
+            View v = this.getCurrentFocus();
+            if (v != null) {
+                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+            }
 
-            finish();
-            startActivity(getIntent());
         });
     }
 

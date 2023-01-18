@@ -1,20 +1,24 @@
 package com.example.letstalk;
 
-import android.util.Log;
-
-import java.io.*;
-import java.net.*;
-import java.util.Locale;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class Client {
 
@@ -182,6 +186,31 @@ public class Client {
                 "searchUsers",
                 token.toString().toLowerCase(Locale.ROOT)).split(" ");
     }
+    public String getEmailByUsername(String username) {
+        return request(
+                "-1",
+                "getEmailByUsername",
+                username);
+    }
 
+    public void changeUsername(String userId, String usernameToChangeTo) {
+        request(
+                "-1",
+               "changeUsername",
+                userId + " " + usernameToChangeTo);
+    }
+
+    public void changeEmail(String userId, String emailToChangeTo) {
+        request(
+                "-1",
+                "changeEmail",
+                userId + " " + emailToChangeTo);
+    }
+    public void changePassword(String userId, String passwordToChangeTo) {
+        request(
+                "-1",
+                "changePassword",
+                userId + " " + passwordToChangeTo);
+    }
 }
 
