@@ -90,42 +90,45 @@ public class MainActivity extends AppCompatActivity {
                 // if userId is 1 or 2 or 3 do nothing just display text and stay on page
 
                 // userId = 1, if username already exist
-                if (userId.equals("1")) {
-                    tvExistError.setText("Username Already exist");
-                    tvExistError.setVisibility(VISIBLE);
-                }
+                switch (userId) {
+                    case "1":
+                        tvExistError.setText("Username Already exist");
+                        tvExistError.setVisibility(VISIBLE);
+                        break;
 
-                // userId = 2, if email already exist
-                else if (userId.equals("2")) {
-                    tvExistError.setText("Email Already exist");
-                    tvExistError.setVisibility(VISIBLE);
-                }
+                    // userId = 2, if email already exist
+                    case "2":
+                        tvExistError.setText("Email Already exist");
+                        tvExistError.setVisibility(VISIBLE);
+                        break;
 
-                // userId = 3, if username & email already exist
-                else if (userId.equals("3")) {
-                    tvExistError.setText("Username and Email Already exist");
-                    tvExistError.setVisibility(VISIBLE);
+                    // userId = 3, if username & email already exist
+                    case "3":
+                        tvExistError.setText("Username and Email Already exist");
+                        tvExistError.setVisibility(VISIBLE);
 
-                } else { // if createUser worked, write all important data to files
+                        break;
+                    default:  // if createUser worked, write all important data to files
 
-                    try {
-                        FileUtility.writeToFile(keyFile, userId, context);
-                        FileUtility.writeToFile(loginFile, "true", context);
-                        FileUtility.writeToFile(usernameFile, String.valueOf(edtUsername.getText()), context);
+                        try {
+                            FileUtility.writeToFile(keyFile, userId, context);
+                            FileUtility.writeToFile(loginFile, "true", context);
+                            FileUtility.writeToFile(usernameFile, String.valueOf(edtUsername.getText()), context);
 
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
 
-                    // go to UsersActivity and pass the username to it
+                        // go to UsersActivity and pass the username to it
 
-                    String username = String.valueOf(edtUsername.getText());
+                        String username = String.valueOf(edtUsername.getText());
 
-                    Intent myIntent = new Intent(MainActivity.this, UsersActivity.class);
-                    myIntent.putExtra("username", username);
-                    MainActivity.this.startActivity(myIntent);
+                        Intent myIntent = new Intent(MainActivity.this, UsersActivity.class);
+                        myIntent.putExtra("username", username);
+                        MainActivity.this.startActivity(myIntent);
 
 
+                        break;
                 }
             }
         });

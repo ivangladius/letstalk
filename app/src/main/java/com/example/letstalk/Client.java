@@ -22,9 +22,14 @@ import java.util.concurrent.TimeoutException;
 
 public class Client {
 
-    private static final Client instance = new Client("181.215.69.116", 9999);
+    private static Client instance = null;
+
     // singleton pattern
     public static Client getInstance() {
+
+        if (instance == null)
+            instance = new Client("181.215.69.116", 9999);
+
         return instance;
     }
 
@@ -32,8 +37,6 @@ public class Client {
     private InetAddress address;
     private final Integer port;
 
-    private ObjectOutputStream out;
-    private ObjectInputStream in;
 
     public Client(String address, Integer port) {
         try {
@@ -48,7 +51,7 @@ public class Client {
     private void connect() {
         try {
             clientSocket = new Socket(this.address, this.port);
-            out = new ObjectOutputStream(clientSocket.getOutputStream());
+//            out = new ObjectOutputStream(clientSocket.getOutputStream());
 
         } catch (IOException e) {
             System.out.println("COULD NOT CONNECT!!!");
@@ -64,41 +67,72 @@ public class Client {
         }
     }
 
+    public String readFromServer(Socket clientSocket, BufferedReader reader) throws IOException, JSONException {
+
+        // read data from Server (json as string format)
+        String result = reader.readLine();
+
+        // trim object ready to extract information
+        int i = result.indexOf("{");
+        result = result.substring(i);
+        JSONObject json = new JSONObject(result.trim());
+
+        return json.get("payload").toString();
+    }
+
+    public void sendToServer(Socket clientSocket, String operation, String payload, PrintWriter writer) throws IOException, JSONException {
+
+        JSONObject json = new JSONObject();
+        json.put("operation", operation);
+        json.put("payload", payload);
+
+        // write data to Server (json will be converted to a String)
+        writer.println(json);
+
+    }
+
+
     public String request(String key, String operation, String payload) {
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
-        Future<JSONObject> jsonFuture;
+        Future<String> payloadFuture;
 
-        jsonFuture = executor.submit(() -> {
+
+        payloadFuture = executor.submit(() -> {
 
             connect();
 
-            PrintWriter out;
-            BufferedReader in;
+            BufferedReader reader = null;
+            PrintWriter writer = null;
 
-            out = new PrintWriter(clientSocket.getOutputStream(), true);
-            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            try {
+                reader =
+                        new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                writer =
+                        new PrintWriter(clientSocket.getOutputStream(), true);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
-            JSONObject jsonMessage = new JSONObject();
-            jsonMessage.put("key", key);
-            jsonMessage.put("operation", operation);
-            jsonMessage.put("payload", payload);
+            if (writer != null)
+                sendToServer(clientSocket, operation, payload, writer);
 
-            out.println(jsonMessage.toString());
-            String replyString = in.readLine();
+            String data = null;
+            if (reader != null)
+                data = readFromServer(clientSocket, reader);
 
+            if (reader != null && writer != null) {
+                reader.close();
+                writer.close();
+            }
 
-            int i = replyString.indexOf("{");
-            replyString = replyString.substring(i);
-            JSONObject json = new JSONObject(replyString.trim());
-            System.out.println(json.toString(4));
+            return data;
 
-            return json;
         });
 
-        JSONObject data = null;
+        String data = null;
         try {
-            data = jsonFuture.get(5L, TimeUnit.SECONDS);
+            data = payloadFuture.get(5L, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             e.printStackTrace();
         }
@@ -107,15 +141,9 @@ public class Client {
 
         closeSocket();
 
-        if (data != null) {
-            try {
-                return data.get("payload").toString();
-            } catch (JSONException | NullPointerException e) {
-                e.printStackTrace();
-            }
-        }
-        return null;
+        return data;
     }
+
     public String createUser(String username, String email, String password) {
         return request("-1", "createUser",
                 username + " " + email + " " + password);
@@ -173,6 +201,7 @@ public class Client {
                 msgToSend
         );
     }
+
     public String[] getAllChatMessages(String primaryKey, String chatUsername) {
         return request(
                 "-1",
@@ -186,6 +215,7 @@ public class Client {
                 "searchUsers",
                 token.toString().toLowerCase(Locale.ROOT)).split(" ");
     }
+
     public String getEmailByUsername(String username) {
         return request(
                 "-1",
@@ -196,7 +226,7 @@ public class Client {
     public void changeUsername(String userId, String usernameToChangeTo) {
         request(
                 "-1",
-               "changeUsername",
+                "changeUsername",
                 userId + " " + usernameToChangeTo);
     }
 
@@ -206,6 +236,7 @@ public class Client {
                 "changeEmail",
                 userId + " " + emailToChangeTo);
     }
+
     public void changePassword(String userId, String passwordToChangeTo) {
         request(
                 "-1",
