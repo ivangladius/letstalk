@@ -1,7 +1,5 @@
 package com.example.letstalk;
 
-import static com.example.letstalk.ChatActivity.handler;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,6 +28,8 @@ public class UsersActivity extends AppCompatActivity {
 
     Button btnSettings;
     Button btnAddContacts;
+
+    static Handler handler = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
