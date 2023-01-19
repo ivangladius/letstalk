@@ -57,6 +57,7 @@ public class ContactsActivity extends AppCompatActivity {
                 // now get all users with the letters in variable "s"
                 String[] users = client.searchUsers(s.toString());
 
+                // if no network error
                 if (users != null) {
 
                     // if no users found do not add to userModels

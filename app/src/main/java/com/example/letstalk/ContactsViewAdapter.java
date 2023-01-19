@@ -85,14 +85,14 @@ public class ContactsViewAdapter
 
                 // we have the username of the partner (btnUsername with .getText())
                 // where btnUsername has the username of the User stored, you searched
-                // with edtSearchbar (defined File: ContactsActivity, Line: 22)
+                // with edtSearchbar (defined File: ContactsActivity)
                 // so if you click add Contacts and search for users, every user will be a button
                 // for example, search: m   (edtSearchBar)
                 // | max     |   btnUsername.setText("max");
                 // | mubi    |   btnUsername.setText("mubi");
                 // | mohamed |   btnUsername.setText("mohamed");
 
-                // (see Line: 41) and imagine this in a loop for as many users there a found
+                //  and imagine this in a loop for as many users there a found
                 // with the search input you provide
 
 
@@ -112,8 +112,6 @@ public class ContactsViewAdapter
                         currentUserKey,
                         String.valueOf(btnUsername.getText())
                 );
-
-
 
 
                 // after adding contact jump back to MainActivity

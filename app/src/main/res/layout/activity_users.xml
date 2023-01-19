@@ -18,36 +18,50 @@
         app:layout_constraintTop_toBottomOf="@+id/btnAddContact"
         app:layout_constraintVertical_bias="1.0" />
 
-    <Button
+    <ImageButton
         android:id="@+id/btnAddContact"
-        android:layout_marginTop="16dp"
         android:layout_width="107dp"
         android:layout_height="56dp"
-        android:layout_marginStart="64dp"
+        android:layout_marginTop="16dp"
         android:backgroundTint="@color/blueBlack"
         android:text="add Contact"
-        android:textColor="@color/white"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/btnSettings"
+        app:layout_constraintEnd_toEndOf="@+id/btnSettings"
+        app:layout_constraintHorizontal_bias="0.053"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.008" />
+        app:layout_constraintVertical_bias="0.0"
+        app:srcCompat="@drawable/ic_add_contact" />
 
-    <Button
+    <ImageButton
         android:id="@+id/btnSettings"
         android:layout_width="107dp"
         android:layout_height="56dp"
         android:layout_marginTop="16dp"
         android:backgroundTint="@color/blueBlack"
         android:text="Settings"
-        android:textColor="@color/white"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.717"
+        app:layout_constraintHorizontal_bias="0.947"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.008" />
+        app:layout_constraintVertical_bias="0.0"
+        app:srcCompat="@drawable/ic_settings" />
+
+    <TextView
+        android:id="@+id/tvNetworkError"
+        android:layout_width="146dp"
+        android:layout_height="33dp"
+        android:gravity="center"
+        android:textColor="@color/red"
+        android:textSize="18sp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btnSettings"
+        app:layout_constraintStart_toEndOf="@+id/btnAddContact"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.044" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -9,7 +9,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.io.File;
@@ -26,8 +28,10 @@ public class UsersActivity extends AppCompatActivity {
 
     String username;
 
-    Button btnSettings;
-    Button btnAddContacts;
+    ImageButton btnSettings;
+    ImageButton btnAddContacts;
+
+    TextView tvNetworkError;
 
     static Handler handler = null;
 
@@ -40,7 +44,10 @@ public class UsersActivity extends AppCompatActivity {
         btnSettings = findViewById(R.id.btnSettings);
         btnAddContacts = findViewById(R.id.btnAddContact);
 
+        tvNetworkError = findViewById(R.id.tvNetworkError);
+
         Context context = getApplicationContext();
+
         client = Client.getInstance();
 
         // read username from file
@@ -76,11 +83,13 @@ public class UsersActivity extends AppCompatActivity {
 
         // getting String like "max hans peter gandalf"
 
+
         String friends = client.listFriends(username);
         if (friends != null) {
+            tvNetworkError.setVisibility(View.INVISIBLE);
 
-            btnAddContacts.setText("Add Contacts");
-            btnSettings.setText("Settings");
+//            btnAddContacts.setText("Add Contacts");
+//            btnSettings.setText("Settings");
 
             RecyclerView recyclerView = findViewById(R.id.mRecyclerView);
 
@@ -98,30 +107,27 @@ public class UsersActivity extends AppCompatActivity {
             recyclerView.setAdapter(adapter);
             recyclerView.setLayoutManager(new LinearLayoutManager(this));
         } else { // is network error
-            btnAddContacts.setText("No");
-            btnSettings.setText("Connection");
+// erorr text
+            tvNetworkError.setText("No Connection");
+            tvNetworkError.setVisibility(View.VISIBLE);
+
             userModels.clear();
         }
-
     }
 
-    public void reload(String _username_secure) {
+    public void reload(String username) {
         handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 // load every 5 seconds all friends from database
-                listFriends(_username_secure);
-                reload(_username_secure);
+                listFriends(username);
+                reload(username);
             }
         }, 5000);
     }
 
-    // if pressed back just close app
-    @Override
-    public void onBackPressed() {
-        this.finishAffinity();
-    }
+
 
 
     private void setupUserModels(String friends) {
@@ -131,7 +137,8 @@ public class UsersActivity extends AppCompatActivity {
             // if user has 0 friends dont display any boxes
             // this fixed the visual bug if you had no friends
             // but still displayed one empty user box
-            if (!(sfriends[0].equals("") && sfriends.length == 1)) {
+            if (! (sfriends[0].equals("") && sfriends.length == 1)) {
+
                 // now add every friend to the userModel
                 // so it will be later displayed by the RecyclerView
                 for (String sf : sfriends) {
@@ -143,6 +150,14 @@ public class UsersActivity extends AppCompatActivity {
     // kill background thread running the function listFriends if activity is not open
     // in AndroidManifest.xml all Activities are not saved if not currently active,
     // thus we can so easily call override the function onDestroy to kill all running background threads
+
+    // if pressed back just close app
+    @Override
+    public void onBackPressed() {
+        this.finishAffinity();
+    }
+
+    // kill all running background threads
     @Override
     public void onDestroy() {
         super.onDestroy();

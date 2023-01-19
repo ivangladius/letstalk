@@ -167,10 +167,6 @@ public class ChatActivity extends AppCompatActivity {
             int numberOfMessages = splittedMessages.length;
 
             // k = 1 to skip first "." message k = 2 to skip both "." messages
-//        int k = 0;
-//        if (numberOfMessages >= 2)
-//            k = 2;
-
 
             // loop trough "numberOfMessages" messages
             for (int k = 2; k < numberOfMessages; k++) {
