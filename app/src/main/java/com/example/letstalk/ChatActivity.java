@@ -89,14 +89,14 @@ public class ChatActivity extends AppCompatActivity {
         });
 
 
-        // those are all messages from the current chat
-        String[] splittedMessages = client.getAllChatMessages(
-                primaryKey, chatUsername
-        );
-
-
-        if (splittedMessages != null)
-            oldState = splittedMessages.length;
+//        // those are all messages from the current chat
+//        String[] splittedMessages = client.getAllChatMessages(
+//                primaryKey, chatUsername
+//        );
+//
+//
+//        if (splittedMessages != null)
+//            oldState = splittedMessages.length;
 
         showMessages(primaryKey, chatUsername);
 
@@ -162,13 +162,13 @@ public class ChatActivity extends AppCompatActivity {
         int numberOfMessages = splittedMessages.length;
 
         // k = 1 to skip first "." message k = 2 to skip both "." messages
-        int k = 0;
-        if (numberOfMessages >= 2)
-            k = 2;
+//        int k = 0;
+//        if (numberOfMessages >= 2)
+//            k = 2;
 
 
         // loop trough "numberOfMessages" messages
-        for (; k < numberOfMessages; k++) {
+        for (int k = 2; k < numberOfMessages; k++) {
 
             // [max 20:36] [nachricht]
             String sendingMsgUserData = "";

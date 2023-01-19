@@ -223,22 +223,22 @@ public class Client {
                 username);
     }
 
-    public void changeUsername(String userId, String usernameToChangeTo) {
-        request(
+    public String changeUsername(String userId, String usernameToChangeTo) {
+        return request(
                 "-1",
                 "changeUsername",
                 userId + " " + usernameToChangeTo);
     }
 
-    public void changeEmail(String userId, String emailToChangeTo) {
-        request(
+    public String changeEmail(String userId, String emailToChangeTo) {
+        return request(
                 "-1",
                 "changeEmail",
                 userId + " " + emailToChangeTo);
     }
 
-    public void changePassword(String userId, String passwordToChangeTo) {
-        request(
+    public String changePassword(String userId, String passwordToChangeTo) {
+        return request(
                 "-1",
                 "changePassword",
                 userId + " " + passwordToChangeTo);
