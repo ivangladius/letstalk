@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -51,22 +52,24 @@ public class ContactsActivity extends AppCompatActivity {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
 
                 // first clear all user
-//                userModels.clear();
                 userModels.clear();
 
                 // now get all users with the letters in variable "s"
                 String[] users = client.searchUsers(s.toString());
 
-                // if no users found dont add to userModels
-                // thus nothing will be displayed
-                if (!(users.length == 1 && users[0].equals(""))) {
+                if (users != null) {
 
-                    // now add all found user to userModels list
-                    for (String u : users)
-                        userModels.add(new UserModel(u));
-                }
+                    // if no users found do not add to userModels
+                    // thus nothing will be displayed
+                    if (!(users.length == 1 && users[0].equals(""))) {
+
+                        // now add all found user to userModels list
+                        for (String u : users)
+                            userModels.add(new UserModel(u));
+                    }
                     // now display all found users
                     displayModels(recyclerView);
+                }
             }
 
             @Override
@@ -86,5 +89,11 @@ public class ContactsActivity extends AppCompatActivity {
 
         recyclerView.setAdapter(contactsViewAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent myIntent = new Intent(ContactsActivity.this, MainActivity.class);
+        ContactsActivity.this.startActivity(myIntent);
     }
 }

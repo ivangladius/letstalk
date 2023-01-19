@@ -127,14 +127,18 @@ public class MainActivity extends AppCompatActivity {
                         myIntent.putExtra("username", username);
                         MainActivity.this.startActivity(myIntent);
 
-
                         break;
                 }
+            } else {
+                tvExistError.setText("No Connection");
+                tvExistError.setVisibility(VISIBLE);
             }
         });
 
         // "Sign Up?" if clicked jump to Login page
-        txtLoginInfo.setOnClickListener(view -> {
+        txtLoginInfo.setOnClickListener(view ->
+
+        {
             Intent myIntent = new Intent(MainActivity.this, LoginActivity.class);
             MainActivity.this.startActivity(myIntent);
         });

@@ -75,25 +75,33 @@ public class UsersActivity extends AppCompatActivity {
     public void listFriends(String username) {
 
         // getting String like "max hans peter gandalf"
+
         String friends = client.listFriends(username);
-
-        RecyclerView recyclerView = findViewById(R.id.mRecyclerView);
-
-        // clear current view and send them to setupUserModel()
-        // where the String friends get splitted
-        // and every "friend" gets added to the Recyclerview
-
         if (friends != null) {
+
+            btnAddContacts.setText("Add Contacts");
+            btnSettings.setText("Settings");
+
+            RecyclerView recyclerView = findViewById(R.id.mRecyclerView);
+
+            // clear current view and send them to setupUserModel()
+            // where the String friends get splitted
+            // and every "friend" gets added to the Recyclerview
+
             userModels.clear();
             setupUserModels(friends);
+
+            // after view is created now set the new View
+            UM_RecyclerViewAdapter adapter
+                    = new UM_RecyclerViewAdapter(this, userModels);
+
+            recyclerView.setAdapter(adapter);
+            recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        } else { // is network error
+            btnAddContacts.setText("No");
+            btnSettings.setText("Connection");
+            userModels.clear();
         }
-
-        // after view is created now set the new View
-        UM_RecyclerViewAdapter adapter
-                = new UM_RecyclerViewAdapter(this, userModels);
-
-        recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
     }
 
@@ -102,7 +110,7 @@ public class UsersActivity extends AppCompatActivity {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                // load every 5 seconds all friends
+                // load every 5 seconds all friends from database
                 listFriends(_username_secure);
                 reload(_username_secure);
             }
@@ -131,5 +139,13 @@ public class UsersActivity extends AppCompatActivity {
                 }
             }
         }
+    }
+    // kill background thread running the function listFriends if activity is not open
+    // in AndroidManifest.xml all Activities are not saved if not currently active,
+    // thus we can so easily call override the function onDestroy to kill all running background threads
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        handler.removeCallbacksAndMessages(null);
     }
 }

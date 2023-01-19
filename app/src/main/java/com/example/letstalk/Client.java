@@ -62,7 +62,8 @@ public class Client {
 
     private void closeSocket() {
         try {
-            clientSocket.close();
+            if (clientSocket != null)
+                clientSocket.close();
         } catch (IOException ignore) {
         }
     }
@@ -151,8 +152,6 @@ public class Client {
 
     public String login(String email, String password) {
         // if user enters garbage do nothing
-        if (email.length() == 0 || password.length() == 0)
-            return null;
         return request(
                 "-1",
                 "login",
@@ -184,7 +183,7 @@ public class Client {
                 username);
     }
 
-    public void sendMessage(String primaryKey, String chatUsername, String message) {
+    public String sendMessage(String primaryKey, String chatUsername, String message) {
 
         String partnerKey = request(
                 "-1",
@@ -195,7 +194,7 @@ public class Client {
                 primaryKey + " " + partnerKey + " " + "[" +
                         message.replace("\n", " ").replace("\r", " ").concat("]");
 
-        request(
+        return request(
                 "-1",
                 "sendMessage",
                 msgToSend
@@ -203,17 +202,27 @@ public class Client {
     }
 
     public String[] getAllChatMessages(String primaryKey, String chatUsername) {
-        return request(
+        String payload = request(
                 "-1",
                 "getMessages",
-                primaryKey + " " + chatUsername).split("\t");
+                primaryKey + " " + chatUsername);
+
+        if (payload != null)
+            return payload.split("\t");
+
+        return null;
     }
 
     public String[] searchUsers(String token) {
-        return request(
+        String payload = request(
                 "-1",
                 "searchUsers",
-                token.toString().toLowerCase(Locale.ROOT)).split(" ");
+                token.toString().toLowerCase(Locale.ROOT));
+
+        if (payload != null)
+            return payload.split(" ");
+
+        return null;
     }
 
     public String getEmailByUsername(String username) {

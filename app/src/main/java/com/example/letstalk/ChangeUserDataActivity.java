@@ -73,39 +73,80 @@ public class ChangeUserDataActivity extends AppCompatActivity {
             // get input from edtUserInfo
             String userInputData = edtUserInfo.getText().toString();
 
+            String status = null; // return values of network operations
 
-            String status = null;
             switch (change) {
+
                 case "username":
 
-                    // change username and also write to file
-                    status = client.changeUsername(primaryKey, userInputData);
-                    if (status.equals("-1")) {
-                        tvExistError.setText("Username Already exist");
-                        tvExistError.setVisibility(VISIBLE);
-                    } else
-                        changeDataSuccessful = true;
+                    // only accept password if longer or equal 1
+                    if (userInputData.length() >= 1) {
 
-                    try {
-                        FileUtility.writeToFile("username.txt", userInputData, context);
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                        // change username and also write to file
+                        status = client.changeUsername(primaryKey, userInputData);
+                        if (status != null) {
+                            if (status.equals("-1")) {
+                                tvExistError.setText("Username Already exist");
+                                tvExistError.setVisibility(VISIBLE);
+                            } else {
+                                Log.d("XXXELSE", "ELSE: " + status);
+                                changeDataSuccessful = true;
+
+                                try {
+                                    FileUtility.writeToFile("username.txt", userInputData, context);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        } else { // if network error
+                            tvExistError.setText("No Connection");
+                            tvExistError.setVisibility(VISIBLE);
+                        }
+                        break;
+                    } else { // if password is not longer than 1 in length
+                        tvExistError.setText("Enter atleast 1 Letter");
+                    }
+                case "email":
+
+                    // only accept password if longer or equal 1
+                    if (userInputData.length() >= 1) {
+
+                        status = client.changeEmail(primaryKey, userInputData);
+                        // not network error
+                        if (status != null) {
+                            if (status.equals("-1")) {
+                                tvExistError.setText("Email Already exist");
+                                tvExistError.setVisibility(VISIBLE);
+                            } else
+                                changeDataSuccessful = true;
+                        } else { // network error
+                            tvExistError.setText("No Connection");
+                            tvExistError.setVisibility(VISIBLE);
+                        }
+                    } else { // if password is not longer than 1 in length
+                        tvExistError.setText("Enter atleast 1 Letter");
                     }
                     break;
-                case "email":
-                    status = client.changeEmail(primaryKey, userInputData);
-                    if (status.equals("-1")) {
-                        tvExistError.setText("Email Already exist");
-                        tvExistError.setVisibility(VISIBLE);
-                    } else
-                        changeDataSuccessful = true;
-                    break;
                 case "password":
-                    client.changePassword(primaryKey, userInputData);
-                    break;
+
+                    // only accept password if longer or equal 1
+                    if (userInputData.length() >= 1) {
+
+                        status = client.changePassword(primaryKey, userInputData);
+
+                        if (status == null) { // not network error
+                            tvExistError.setText("No Connection");
+                            tvExistError.setVisibility(VISIBLE);
+                        } else
+                            changeDataSuccessful = true;
+
+                        break;
+                    } else { // if password is not longer than 1 in length
+                        tvExistError.setText("Enter atleast 1 Letter");
+                    }
             }
 
-            // jump back to settings
+            // jump back to settings , if changeDataSuccessful is set to true
             if (changeDataSuccessful) {
                 Intent myIntent = new Intent(ChangeUserDataActivity.this, SettingsActivity.class);
                 ChangeUserDataActivity.this.startActivity(myIntent);

@@ -113,18 +113,21 @@ public class ChatActivity extends AppCompatActivity {
         btnSendMessage.setOnClickListener(view ->
         {
 
-            client.sendMessage(
+            String status = client.sendMessage(
                     primaryKey,
                     chatUsername,
                     String.valueOf(edtTypeMessage.getText())
             );
 
-            // set edtTypeMessage empty and hide keyboard for better experience
-            edtTypeMessage.setText("");
-            View v = this.getCurrentFocus();
-            if (v != null) {
-                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+            // if no network error
+            if (status != null) {
+                // set edtTypeMessage empty and hide keyboard for better experience
+                edtTypeMessage.setText("");
+                View v = this.getCurrentFocus();
+                if (v != null) {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                }
             }
 
         });
@@ -141,92 +144,96 @@ public class ChatActivity extends AppCompatActivity {
                 primaryKey, chatUsername
         );
 
+        // if not network error
+        if (splittedMessages != null) {
 
-        if (splittedMessages != null)
+            chatName.setText(chatUsername);
+
             newState = splittedMessages.length;
 
-        // scroll to bottom if a new message is in the database for the chat
-        // with a new anonymous thread
-        if (newState != oldState) {
-            scrollView.post(new Runnable() {
-                @Override
-                public void run() {
-                    scrollView.fullScroll(View.FOCUS_DOWN);
-                }
-            });
-            oldState = newState;
-        }
+            // scroll to bottom if a new message is in the database for the chat
+            // with a new anonymous thread
+            if (newState != oldState) {
+                scrollView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        scrollView.fullScroll(View.FOCUS_DOWN);
+                    }
+                });
+                oldState = newState;
+            }
 
 
+            int numberOfMessages = splittedMessages.length;
 
-        int numberOfMessages = splittedMessages.length;
-
-        // k = 1 to skip first "." message k = 2 to skip both "." messages
+            // k = 1 to skip first "." message k = 2 to skip both "." messages
 //        int k = 0;
 //        if (numberOfMessages >= 2)
 //            k = 2;
 
 
-        // loop trough "numberOfMessages" messages
-        for (int k = 2; k < numberOfMessages; k++) {
+            // loop trough "numberOfMessages" messages
+            for (int k = 2; k < numberOfMessages; k++) {
 
-            // [max 20:36] [nachricht]
-            String sendingMsgUserData = "";
-            String message = "";
+                // [max 20:36] [nachricht]
+                String sendingMsgUserData = "";
+                String message = "";
 
-            // message is built as following:
-            // "[username time] [this is some example message]"
+                // message is built as following:
+                // "[username time] [this is some example message]"
 
-            // now we need to extract the two braces
-            // look for braces and extract their content
-            Matcher x = Pattern.compile("\\[(.*?)\\]").matcher(splittedMessages[k]);
+                // now we need to extract the two braces
+                // look for braces and extract their content
+                Matcher x = Pattern.compile("\\[(.*?)\\]").matcher(splittedMessages[k]);
 
-            // first brace [] -> [username time]
-            if (x.find())
-                sendingMsgUserData = x.group(1);
+                // first brace [] -> [username time]
+                if (x.find())
+                    sendingMsgUserData = x.group(1);
 
-            // second brace [] -> [this is some example message
-            if (x.find())
-                message = x.group(1);
+                // second brace [] -> [this is some example message
+                if (x.find())
+                    message = x.group(1);
 
-            // if content could not be extracted just skip and go to the next message
-            else
-                continue;
+                    // if content could not be extracted just skip and go to the next message
+                else
+                    continue;
 
-            // add Username and time to LinearLayout in ScrollView
-            TextView userNameText = new TextView(getApplicationContext());
-            userNameText.setTextSize(25);
-            userNameText.setTypeface(null, Typeface.BOLD);
-            userNameText.setText(sendingMsgUserData + " :");
-            linearLayout.addView(userNameText);
-            // for e.g
-            // username1 20:36:
+                // add Username and time to LinearLayout in ScrollView
+                TextView userNameText = new TextView(getApplicationContext());
+                userNameText.setTextSize(25);
+                userNameText.setTypeface(null, Typeface.BOLD);
+                userNameText.setText(sendingMsgUserData + " :");
+                linearLayout.addView(userNameText);
+                // for e.g
+                // username1 20:36:
 
-            // now add chat text below the sendingMsgUserData text
-            TextView chatText = new TextView(getApplicationContext());
-            chatText.setTextSize(25);
-            chatText.setText(message);
-            linearLayout.addView(chatText);
+                // now add chat text below the sendingMsgUserData text
+                TextView chatText = new TextView(getApplicationContext());
+                chatText.setTextSize(25);
+                chatText.setText(message);
+                linearLayout.addView(chatText);
 
-            // now looking like that
+                // now looking like that
 
-            // username1 20:36
-            // this is my super cool message
+                // username1 20:36
+                // this is my super cool message
 
-            // now just add a empty text just to create a while space between the messages
-            TextView emptyFiller = new TextView(getApplicationContext());
-            emptyFiller.setText(" ");
-            linearLayout.addView(emptyFiller);
+                // now just add a empty text just to create a while space between the messages
+                TextView emptyFiller = new TextView(getApplicationContext());
+                emptyFiller.setText(" ");
+                linearLayout.addView(emptyFiller);
 
-            // now looking like that
+                // now looking like that
 
-            // username1 20:36
-            // this is my super cool message
-            // .... white line
-            // .. next message
+                // username1 20:36
+                // this is my super cool message
+                // .... white line
+                // .. next message
 
+            }
 
-        }
+        } else // if network error
+            chatName.setText("No Connection");
     }
 
     // create new thread which reloads all messages
@@ -235,21 +242,27 @@ public class ChatActivity extends AppCompatActivity {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                // Do something after 5s = 5000ms
 
                 showMessages(primaryKey, chatUsername);
                 reload(primaryKey, chatUsername);
             }
-        }, 500);
+        }, 500); // run reload every half a second (getMessages)
     }
 
-    // if current activity is closed kill the reload thread
-    // should only run when in ChatsActivity
+
+    // kill background thread running the function getMessages if current activity is closed
+    // (necessary network traffic every half a second)
+    // in AndroidManifest.xml all Activities are not saved if not currently active,
+    // thus we can so easily call override the function onDestroy to kill all running background threads
     @Override
     public void onDestroy() {
-        // Do your stuff here
         super.onDestroy();
-//        handler.removeCallbacks();
         handler.removeCallbacksAndMessages(null);
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent myIntent = new Intent(ChatActivity.this, MainActivity.class);
+        ChatActivity.this.startActivity(myIntent);
     }
 }

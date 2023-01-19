@@ -46,10 +46,14 @@ public class SettingsActivity extends AppCompatActivity {
 
         // display username and email on settings page
         // we have already username so get email now
+
         String email = client.getEmailByUsername(username);
 
         tvUsername.setText("user: " + username);
-        tvEmail.setText("email: " + email);
+        if (email == null)
+            tvEmail.setText("email: " + "no connection");
+        else
+            tvEmail.setText("email: " + email);
 
 
         // by logging out we just write false

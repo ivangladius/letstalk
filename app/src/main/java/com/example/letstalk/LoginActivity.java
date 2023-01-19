@@ -43,7 +43,7 @@ public class LoginActivity extends AppCompatActivity {
         Context context = getApplicationContext();
 
         // get Client instance object
-        Client client = Client.getInstance();
+        client = Client.getInstance();
 
         // if user is already logged in jump to UsersActivity
         String tempUsername = FileUtility.isUserLoggedIn(context);
@@ -56,10 +56,17 @@ public class LoginActivity extends AppCompatActivity {
         btnSubmit.setOnClickListener(view -> {
 
             // get String[] {"userId", "username"} from function login
-            String payload = client.login(
-                    String.valueOf(edtEmail.getText()),
-                    String.valueOf(edtPassword.getText())
-            );
+            String email = String.valueOf(edtEmail.getText());
+            String password = String.valueOf(edtPassword.getText());
+
+            String payload = null;
+            if (email.length() >= 1 && password.length() >= 1) {
+                payload = client.login(
+                        email,
+                        password
+                );
+            }
+
 
             // now split payload where
             // credentials[0] is the userId
@@ -67,40 +74,39 @@ public class LoginActivity extends AppCompatActivity {
 
             String userId = null;
             String username = null;
+
             if (payload != null) {
-                String[] credentials = payload.split(" ");
-                userId = credentials[0]; // get UserId from returned String[]
-                username = credentials[1]; // get username from returned String[]
-            }
-            // to save later in files, to check if login status is true in
-            // MainActivity
+                Log.d("XXXCON", "PAYLOAD TRUE");
 
-            if (userId != null && username != null) {
-                try {
-                    // write credentials to file, meaning he is logged in
-                    FileUtility.writeToFile(keyFile, userId, context);
-                    FileUtility.writeToFile(usernameFile, username, context);
-                    FileUtility.writeToFile(loginFile, "true", context);
+                if (!payload.equals("")) {
+                    try {
+                        String[] credentials = payload.split(" ");
+                        userId = credentials[0]; // get UserId from returned String[]
+                        username = credentials[1]; // get username from returned String[]
+                        // to save later in files, to check if login status is true in
+                        // MainActivity
+                        // write credentials to file, meaning he is logged in
+                        FileUtility.writeToFile(keyFile, userId, context);
+                        FileUtility.writeToFile(usernameFile, username, context);
+                        FileUtility.writeToFile(loginFile, "true", context);
 
-                    Intent myIntent = new Intent(LoginActivity.this, UsersActivity.class);
-                    myIntent.putExtra("key", userId);
-                    myIntent.putExtra("username", username);
-                    LoginActivity.this.startActivity(myIntent);
+                        Intent myIntent = new Intent(LoginActivity.this, UsersActivity.class);
+                        myIntent.putExtra("key", userId);
+                        myIntent.putExtra("username", username);
+                        LoginActivity.this.startActivity(myIntent);
 
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else  { // if userId and username is null, account does not exist
+                    tvErrorExist.setText("Account does not Exist");
+                    tvErrorExist.setVisibility(View.VISIBLE);
                 }
-            } else { // if userId and username is null, account does not exist
-                tvErrorExist.setText("Account does not Exist");
+            } else {
+                Log.d("XXXCON", "NO CONNECTION");
+                tvErrorExist.setText("No Connection");
                 tvErrorExist.setVisibility(View.VISIBLE);
             }
-
-
-            // if successfully logged in jump to UsersActivity
-
-            // send userId and username to UsersActivity and jump to that
-
-
         });
 
         // "create account" ? if clicked jump to MainActivity page to create account
