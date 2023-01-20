@@ -6,8 +6,6 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -68,7 +66,7 @@ public class Client {
         }
     }
 
-    public String readFromServer(Socket clientSocket, BufferedReader reader) throws IOException, JSONException {
+    public String readFromServer(BufferedReader reader) throws IOException, JSONException {
 
         // read data from Server (json as string format)
         String result = reader.readLine();
@@ -81,7 +79,7 @@ public class Client {
         return json.get("payload").toString();
     }
 
-    public void sendToServer(Socket clientSocket, String operation, String payload, PrintWriter writer) throws IOException, JSONException {
+    public void sendToServer(String operation, String payload, PrintWriter writer) throws JSONException {
 
         JSONObject json = new JSONObject();
         json.put("operation", operation);
@@ -116,11 +114,11 @@ public class Client {
             }
 
             if (writer != null)
-                sendToServer(clientSocket, operation, payload, writer);
+                sendToServer(operation, payload, writer);
 
             String data = null;
             if (reader != null)
-                data = readFromServer(clientSocket, reader);
+                data = readFromServer(reader);
 
             if (reader != null && writer != null) {
                 reader.close();
@@ -208,7 +206,7 @@ public class Client {
     public String[] searchUsers(String token) {
         String payload = request(
                 "searchUsers",
-                token.toString().toLowerCase(Locale.ROOT));
+                token.toLowerCase(Locale.ROOT));
 
         if (payload != null)
             return payload.split(" ");
