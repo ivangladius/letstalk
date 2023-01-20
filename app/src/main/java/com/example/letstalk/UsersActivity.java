@@ -128,8 +128,6 @@ public class UsersActivity extends AppCompatActivity {
     }
 
 
-
-
     private void setupUserModels(String friends) {
 
         if (friends != null) {

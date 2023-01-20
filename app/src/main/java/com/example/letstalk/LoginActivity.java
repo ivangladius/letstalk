@@ -76,8 +76,6 @@ public class LoginActivity extends AppCompatActivity {
             String username = null;
 
             if (payload != null) {
-                Log.d("XXXCON", "PAYLOAD TRUE");
-
                 if (!payload.equals("")) {
                     try {
                         String[] credentials = payload.split(" ");
@@ -103,7 +101,6 @@ public class LoginActivity extends AppCompatActivity {
                     tvErrorExist.setVisibility(View.VISIBLE);
                 }
             } else {
-                Log.d("XXXCON", "NO CONNECTION");
                 tvErrorExist.setText("No Connection");
                 tvErrorExist.setVisibility(View.VISIBLE);
             }

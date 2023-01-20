@@ -79,7 +79,7 @@ public class ChangeUserDataActivity extends AppCompatActivity {
 
                 case "username":
 
-                    // only accept password if longer or equal 1
+                    // only accept username if longer or equal 1
                     if (userInputData.length() >= 1) {
 
                         // change username and also write to file
@@ -89,7 +89,6 @@ public class ChangeUserDataActivity extends AppCompatActivity {
                                 tvExistError.setText("Username Already exist");
                                 tvExistError.setVisibility(VISIBLE);
                             } else {
-                                Log.d("XXXELSE", "ELSE: " + status);
                                 changeDataSuccessful = true;
 
                                 try {
@@ -103,12 +102,12 @@ public class ChangeUserDataActivity extends AppCompatActivity {
                             tvExistError.setVisibility(VISIBLE);
                         }
                         break;
-                    } else { // if password is not longer than 1 in length
+                    } else { // if username is not longer than 1 in length
                         tvExistError.setText("Enter atleast 1 Letter");
                     }
                 case "email":
 
-                    // only accept password if longer or equal 1
+                    // only accept email if longer or equal 1
                     if (userInputData.length() >= 1) {
 
                         status = client.changeEmail(primaryKey, userInputData);
@@ -123,7 +122,7 @@ public class ChangeUserDataActivity extends AppCompatActivity {
                             tvExistError.setText("No Connection");
                             tvExistError.setVisibility(VISIBLE);
                         }
-                    } else { // if password is not longer than 1 in length
+                    } else { // if email is not longer than 1 in length
                         tvExistError.setText("Enter atleast 1 Letter");
                     }
                     break;
