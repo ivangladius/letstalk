@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -11,6 +12,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.widget.EditText;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Locale;
@@ -23,6 +25,7 @@ public class ContactsActivity extends AppCompatActivity {
     EditText edtSearchBar;
     ArrayList<UserModel> userModels = new ArrayList<>();
     Client client;
+    String username = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +37,14 @@ public class ContactsActivity extends AppCompatActivity {
 
         edtSearchBar = findViewById(R.id.edtSearchBar);
         RecyclerView recyclerView = findViewById(R.id.mContactsView);
+
+        Context context = getApplicationContext();
+
+        try {
+            username = FileUtility.readFromFile("username.txt", context);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         TextWatcher tw = new TextWatcher() {
             @Override
@@ -65,8 +76,11 @@ public class ContactsActivity extends AppCompatActivity {
                     if (!(users.length == 1 && users[0].equals(""))) {
 
                         // now add all found user to userModels list
-                        for (String u : users)
-                            userModels.add(new UserModel(u));
+                        for (String u : users) {
+                            // skip your own username, so dont show it
+                            if (!u.equals(username))
+                                userModels.add(new UserModel(u));
+                        }
                     }
                     // now display all found users
                     displayModels(recyclerView);

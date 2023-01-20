@@ -93,7 +93,7 @@ public class Client {
     }
 
 
-    public String request(String key, String operation, String payload) {
+    public String request(String operation, String payload) {
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Future<String> payloadFuture;
@@ -146,31 +146,27 @@ public class Client {
     }
 
     public String createUser(String username, String email, String password) {
-        return request("-1", "createUser",
+        return request("createUser",
                 username + " " + email + " " + password);
     }
 
     public String login(String email, String password) {
         // if user enters garbage do nothing
         return request(
-                "-1",
                 "login",
                 email + " " + password);
     }
 
     public void addContact(String currentUserId, String contactUsername) {
         String secondUserKey = request(
-                "-1",
                 "getIdByUsername",
                 contactUsername);
 
         request(
-                "-1",
                 "sendMessage",
                 currentUserId + " " + secondUserKey + " .");
 
         request(
-                "-1",
                 "sendMessage",
                 secondUserKey + " " + currentUserId + " .");
 
@@ -178,7 +174,6 @@ public class Client {
 
     public String listFriends(String username) {
         return request(
-                "-1",
                 "listFriends",
                 username);
     }
@@ -186,7 +181,6 @@ public class Client {
     public String sendMessage(String primaryKey, String chatUsername, String message) {
 
         String partnerKey = request(
-                "-1",
                 "getIdByUsername",
                 chatUsername
         );
@@ -195,7 +189,6 @@ public class Client {
                         message.replace("\n", " ").replace("\r", " ").concat("]");
 
         return request(
-                "-1",
                 "sendMessage",
                 msgToSend
         );
@@ -203,7 +196,6 @@ public class Client {
 
     public String[] getAllChatMessages(String primaryKey, String chatUsername) {
         String payload = request(
-                "-1",
                 "getMessages",
                 primaryKey + " " + chatUsername);
 
@@ -215,7 +207,6 @@ public class Client {
 
     public String[] searchUsers(String token) {
         String payload = request(
-                "-1",
                 "searchUsers",
                 token.toString().toLowerCase(Locale.ROOT));
 
@@ -227,28 +218,24 @@ public class Client {
 
     public String getEmailByUsername(String username) {
         return request(
-                "-1",
                 "getEmailByUsername",
                 username);
     }
 
     public String changeUsername(String userId, String usernameToChangeTo) {
         return request(
-                "-1",
                 "changeUsername",
                 userId + " " + usernameToChangeTo);
     }
 
     public String changeEmail(String userId, String emailToChangeTo) {
         return request(
-                "-1",
                 "changeEmail",
                 userId + " " + emailToChangeTo);
     }
 
     public String changePassword(String userId, String passwordToChangeTo) {
         return request(
-                "-1",
                 "changePassword",
                 userId + " " + passwordToChangeTo);
     }
